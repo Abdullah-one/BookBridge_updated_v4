@@ -145,6 +145,8 @@ class BookDonationRepository {
             ->addSelect(DB::raw('IF(status = "غير محجوز في النقطة", true, false) as isInPoint'))
             ->orderByDesc('book_donations.created_at')
             ->paginate(8);
+
+        return $availableBookPackages;
     }
 
     public function getLastDonations()

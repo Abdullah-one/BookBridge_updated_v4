@@ -6,7 +6,6 @@ use App\Http\Controllers\Api\Shared\AccountController;
 use App\Http\Controllers\Api\User\BookDonationController;
 use App\Http\Controllers\Api\User\ExchangePointController;
 use App\Http\Controllers\Api\User\ImageController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -145,23 +144,23 @@ Route::controller(\App\Http\Controllers\Api\Admin\SuperAdmin\CityController::cla
     Route::get('/getByDistrict','getByDistrict')->name('cities.getByDistrict');
 });
 //                                           **   ResidentialQuarterController   **
-Route::controller(\App\Http\Controllers\Api\Admin\SuperAdmin\ResidentialQuarterController::class)->prefix('superAdmin/residentialQuarters')->group(function () {
-    Route::get('/getByCity','getByCity')->name('residentialQuarters.getByCity');
-    Route::get('/customGet','customGet')->name('residentialQuarters.customGet');
-    Route::get('/getByName','getByName')->name('residentialQuarters.getByName');
-    Route::get('/getRemovableResidentialQuarters','getRemovableResidentialQuarters')->name('getRemovableResidentialQuarters');
-    Route::post('/store','store')->name('residentialQuarters.store');
-    Route::put('/update/{id}','update')->name('residentialQuarters.update');
-    Route::delete('/destroyRemovableResidentialQuarter/{id}','destroyRemovableResidentialQuarter')->name('destroyRemovableResidentialQuarter');
-});
-//                                              **   ExchangePointController   **
-Route::controller(\App\Http\Controllers\Api\Admin\SuperAdmin\ExchangePointController::class)->prefix('superAdmin/exchangePoints')->group(function () {
-    Route::get('/getByResidentialQuarter','getByResidentialQuarter')->name('exchangePoints.getByResidentialQuarter');
-    Route::get('/customGet','customGet')->name('ExchangePointController.customGet');
-    Route::post('/register','register')->name('ExchangePointController.register');
-    Route::put('/update/{id}','update')->name('ExchangePointController.update');
-    Route::get('/{id}','get')->name('ExchangePointController.get');
-});
+//Route::controller(\App\Http\Controllers\Api\Admin\ResidentialQuarterController::class)->prefix('superAdmin/residentialQuarters')->group(function () {
+//    Route::get('/getByCity','getByCity')->name('residentialQuarters.getByCity');
+//    Route::get('/customGet','customGet')->name('residentialQuarters.customGet');
+//    Route::get('/getByName','getByName')->name('residentialQuarters.getByName');
+//    Route::get('/getRemovableResidentialQuarters','getRemovableResidentialQuarters')->name('getRemovableResidentialQuarters');
+//    Route::post('/store','store')->name('residentialQuarters.store');
+//    Route::put('/update/{id}','update')->name('residentialQuarters.update');
+//    Route::delete('/destroyRemovableResidentialQuarter/{id}','destroyRemovableResidentialQuarter')->name('destroyRemovableResidentialQuarter');
+//});
+////                                              **   ExchangePointController   **
+//Route::controller(\App\Http\Controllers\Api\Admin\ExchangePointController::class)->prefix('superAdmin/exchangePoints')->group(function () {
+//    Route::get('/getByResidentialQuarter','getByResidentialQuarter')->name('exchangePoints.getByResidentialQuarter');
+//    Route::get('/customGet','customGet')->name('ExchangePointController.customGet');
+//    Route::post('/register','register')->name('ExchangePointController.register');
+//    Route::put('/update/{id}','update')->name('ExchangePointController.update');
+//    Route::get('/{id}','get')->name('ExchangePointController.get');
+//});
 
 
 
@@ -175,7 +174,29 @@ Route::controller(\App\Http\Controllers\Api\Admin\SuperAdmin\ExchangePointContro
 //                                     *  Account Controller  *
 Route::controller(\App\Http\Controllers\Api\Admin\AccountController::class)->prefix('admin/accounts')->group(function () {
     Route::post('/login','login')->name('admin.accounts.login');
+    Route::post('/checkValidityOfToken','checkValidityOfToken')->name('admin.accounts.checkValidityOfToken');
+
 });
+
+
+Route::controller(\App\Http\Controllers\Api\Admin\ExchangePointController::class)->prefix('admin/exchangePoints')->group(function (){
+    Route::middleware('auth:sanctum')->get('/getByResidentialQuarter','getByResidentialQuarter')->name('admin.exchangePoints.getByResidentialQuarter');
+    Route::middleware('auth:sanctum')->get('/getByName','getByName')->name('admin.exchangePoints.getByName');
+    Route::middleware('auth:sanctum')->get('/getAll','getAll')->name('admin.exchangePoints.getAll');
+    Route::middleware('auth:sanctum')->get('/get/{id}','get')->name('admin.exchangePoints.get');
+    Route::middleware('auth:sanctum')->post('/register','register')->name('exchangePointController.register');
+    Route::middleware('auth:sanctum')->post('/update/{id}','update')->name('exchangePointController.update');
+});
+
+Route::controller(\App\Http\Controllers\Api\Admin\ResidentialQuarterController::class)->prefix('admin/residentialQuarters')->group(function () {
+    Route::middleware('auth:sanctum')->get('/getByName','getByName')->name('residentialQuarters.getByName');
+    Route::middleware('auth:sanctum')->get('/getAll','getAll')->name('residentialQuarters.getAll');
+    Route::middleware('auth:sanctum')->post('/store','store')->name('residentialQuarters.store');
+    Route::middleware('auth:sanctum')->put('/update/{id}','update')->name('residentialQuarters.update');
+    Route::middleware('auth:sanctum')->delete('/destroy/{id}','destroy')->name('residentialQuarters.delete');
+
+});
+
 
 
 //                                           ---   Other   ---

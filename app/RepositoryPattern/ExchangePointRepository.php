@@ -12,17 +12,48 @@ use Illuminate\Support\Facades\Hash;
 class ExchangePointRepository
 {
 
-    public function getByResidentialQuarter($residentialQuarter_id): Collection
+    public function getByResidentialQuarter($residentialQuarter_id): \Illuminate\Contracts\Pagination\LengthAwarePaginator
     {
         return DB::table('exchange_points')
             ->join('accounts','account_id','=','accounts.id')
+            ->join('residential_quarters','residential_quarters.id','=','exchange_points.residentialQuarter_id')
             ->select(
-            [
-                'exchange_points.id',
-                'userName',
-            ])
+                [
+                    'exchange_points.id',
+                    'userName',
+                    "phoneNumber",
+                    "email",
+                    'maxPackages',
+                    'no_packages',
+                    'location',
+                    'residential_quarters.name as residential_quarter' ,
+                    "accounts.created_at"
+                ])
             ->where('residentialQuarter_id',$residentialQuarter_id)
-            ->get();
+            ->orderByDesc('accounts.created_at')
+            ->paginate(8);
+    }
+
+    public function getByName($exchangePoint): \Illuminate\Contracts\Pagination\LengthAwarePaginator
+    {
+        return DB::table('exchange_points')
+            ->join('accounts','account_id','=','accounts.id')
+            ->join('residential_quarters','residential_quarters.id','=','exchange_points.residentialQuarter_id')
+            ->select(
+                [
+                    'exchange_points.id',
+                    'userName',
+                    "phoneNumber",
+                    "email",
+                    'maxPackages',
+                    'no_packages',
+                    'location',
+                    'residential_quarters.name as residential_quarter' ,
+                    "accounts.created_at"
+                ])
+            ->where('userName','like',  $exchangePoint . '%')
+            ->orderByDesc('accounts.created_at')
+            ->paginate(8);
     }
 
     public function customGet($residentialQuarter_id,$district,$city_id)
@@ -77,19 +108,18 @@ class ExchangePointRepository
         return $result;
     }
 
-    public function store(int $account_id,int $residentialQuarter_id,int $maxPackages,$locationDescription, string $location): void
+    public function store(int $account_id,int $residentialQuarter_id,int $maxPackages, string $location): void
     {
         ExchangePoint::create([
             'account_id' => $account_id,
             'residentialQuarter_id' => $residentialQuarter_id,
             'maxPackages' => $maxPackages,
-            'locationDescription' => $locationDescription,
             'location' => $location
 
         ]);
     }
 
-    public function update(int $id,int $residentialQuarter_id,int $maxPackages,$locationDescription, string $location): bool
+    public function update(int $id,int $residentialQuarter_id,int $maxPackages, string $location): bool
     {
 
         $exchangePoint=ExchangePoint::find($id);
@@ -97,7 +127,6 @@ class ExchangePointRepository
             $exchangePoint->update([
                 'residentialQuarter_id' => $residentialQuarter_id,
                 'maxPackages' => $maxPackages,
-                'locationDescription' => $locationDescription,
                 'location' => $location
             ]);
             return true;
@@ -107,40 +136,45 @@ class ExchangePointRepository
 
     public function get(int $id)
     {
-        return ExchangePoint::where('account_id',$id)
+        return ExchangePoint::where('exchange_points.id',$id)
+            ->join('accounts','account_id','=','accounts.id')
+            ->join('residential_quarters','residential_quarters.id','=','exchange_points.residentialQuarter_id')
             ->select([
-                'id',
+                'exchange_points.id',
+                'userName',
+                "phoneNumber",
+                "email",
                 'maxPackages',
-                'no_packages',
-                'locationDescription',
                 'location',
-                'account_id',
-                'residentialQuarter_id',
-                DB::raw('Date(created_at) as date')
-
+                'residential_quarters.id as residential_quarter_id' ,
             ])
-            ->get()
-            ->map(function ($item) {
-                return [
-                    'id' => $item->id,
-                    "userName" => $item->account? $item->account->userName: null,
-                    "phoneNumber" => $item->account? $item->account->phoneNumber: null,
-                    "email" => $item->account? $item->account->email: null,
-                    'maxPackages' => $item->maxPackages,
-                    'no_packages' => $item->no_packages,
-                    'locationDescription' => $item->locationDescription,
-                    'location' => $item->location,
-                    'residentialQuarter' => $item->residentialQuarter? $item->residentialQuarter->name : null,
-                    'district' => $item->residentialQuarter->city ? $item->residentialQuarter->city->district : null,
-                    'city' => $item->residentialQuarter->city ? $item->residentialQuarter->city->name : null,
-                    "date" => $item->date
-                ];
-            });
+            ->first();
 
     }
 
     public function softDelete($id)
     {
+    }
+
+    public function getAll()
+    {
+        return DB::table('exchange_points')
+            ->join('accounts','account_id','=','accounts.id')
+            ->join('residential_quarters','residential_quarters.id','=','exchange_points.residentialQuarter_id')
+            ->select(
+                [
+                    'exchange_points.id',
+                    'userName',
+                    "phoneNumber",
+                    "email",
+                    'maxPackages',
+                    'no_packages',
+                    'location',
+                    'residential_quarters.name as residential_quarter' ,
+                    'accounts.created_at'
+                ])
+            ->orderByDesc('accounts.created_at')
+            ->paginate(8);
     }
 
 }

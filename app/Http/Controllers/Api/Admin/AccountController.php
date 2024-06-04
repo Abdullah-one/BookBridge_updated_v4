@@ -6,8 +6,11 @@ use App\Http\Controllers\Controller;
 use App\RepositoryPattern\AccountRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
+use PHPUnit\Exception;
 
 class AccountController extends Controller
 {
@@ -18,17 +21,34 @@ class AccountController extends Controller
     }
     public function login(Request $request): JsonResponse
     {
-        $emailOrPhone = $request->emailOrPhone;
-        $account=$this->accountRepository->isExist($emailOrPhone,['admin','superAdmin']);
-        $device_name=$request->device_name;
-        if (!$account || !Hash::check($request->password, $account->password)) {
-            throw ValidationException::withMessages([
-                'email' => ['The provided credentials are incorrect.'],
-            ]);
+        try {
+            $emailOrPhone = $request->emailOrPhone;
+            $account=$this->accountRepository->isExist($emailOrPhone,['admin','superAdmin']);
+            $device_name=$request->device_name;
+            if (!$account || !Hash::check($request->password, $account->password)) {
+                response()->json(['status'=>'fail','message'=>'كلمة المرور أو البريد الإلكتروني غير صحيح']);
+            }
+            $token=$account->createToken('laptop')->plainTextToken;
+            return response()->json(['status'=>'success','data'=>['token'=>$token ]]);
         }
-        $token=$account->createToken($device_name)->plainTextToken;
-        return response()->json(['token'=>$token , 'user'=> ['userName'=>$account->userName,
-            'role'=>$account->role] ]);
+        catch (Exception $exception){
+            return response()->json(['status'=>'fail','message'=>'هناك خطأ بالخادم']);
+        }
+
+    }
+
+    public function checkValidityOfToken(): JsonResponse
+    {
+        try {
+            if (Gate::denies('isAdmin')) {
+                return response()->json(['status' => 'fail', 'message' => 'غير مصرح لهذا الفعل']);
+            }
+
+            return response()->json(['status'=>'success']);
+        }
+        catch (\Exception $exception){
+            return response()->json(['status' => 'fail', 'message' => 'هناك خطأ بالخادم']);
+        }
     }
 
 }

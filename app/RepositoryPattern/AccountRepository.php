@@ -22,12 +22,13 @@ class AccountRepository
             ->first();
     }
 
-    public function store(string $userName,string $email, string $role, string $password, bool $exist=false)
+    public function store(string $userName,string $email,string $phoneNumber, string $role, string $password, bool $exist=false)
     {
         return Account::create([
             'userName' => $userName,
             'email' => $email,
             'password' => $password,
+            'phoneNumber'=> $phoneNumber,
             'role' => $role,
             'exist' => $exist
         ]);
@@ -207,9 +208,7 @@ class AccountRepository
         return Account::where(function (\Illuminate\Database\Eloquent\Builder $builder) use ($emailOrPhone) {
             $builder->where('email', $emailOrPhone)
                 ->orWhere(function (\Illuminate\Database\Eloquent\Builder $query) use ($emailOrPhone) {
-                    $query->where('phoneNumber', $emailOrPhone)
-                        //TODO:put as true
-                        ->where('phoneVerified',true);
+                    $query->where('phoneNumber', $emailOrPhone);
 
                 });
         })

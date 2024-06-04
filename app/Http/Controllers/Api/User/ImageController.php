@@ -161,9 +161,9 @@ class ImageController extends Controller
         $randomNumber = rand(1000, 9999);
         $name = $filename . '_' . $randomNumber . '.' . $extension;
         Storage::disk('public')->putFileAs('images/', $image, $name);
-        $url = Storage::disk('public')->url('images/' . $name);
-        $this->imageRepository->store($url, $bookDonation_id);
-        return $url;
+        //$url = Storage::disk('public')->url('images/' . $name);
+        $this->imageRepository->store($name, $bookDonation_id);
+        return $name;
     }
 
 
