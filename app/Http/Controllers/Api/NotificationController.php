@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\sendNotification;
 use App\Models\Notification;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -19,7 +20,7 @@ class NotificationController extends Controller
     public function sendPushNotification($data): bool
     {
         //TODO:
-        $credentialsFilePath = app_path('');
+        $credentialsFilePath = app_path('school-textbook-sharing-firebase-adminsdk-ytov8-830792e7a5.json');
         $client = new \Google_Client();
         $client->setAuthConfig($credentialsFilePath);
         $client->addScope('https://www.googleapis.com/auth/firebase.messaging');
@@ -49,7 +50,7 @@ class NotificationController extends Controller
                     'title' => $data['data']['title'],
                     'body' => $data['data']['description'],
                 ],
-                'data' => $data['data'],  // Optional: Include any additional data
+            //'data' => $data['data'],  // Optional: Include any additional data
             ]
         ];
 
@@ -74,10 +75,14 @@ class NotificationController extends Controller
 
     }
 
+    /**
+     * @throws \Google\Exception
+     */
     public function create($data): bool
     {
         Notification::create($data['data']);
-        if($this->sendPushNotification($data)){
+        if($this->sendPushNotification($data))
+        {
             return true;
         }
         return false;
@@ -85,16 +90,18 @@ class NotificationController extends Controller
 
     public function testNotification():JsonResponse
     {
+        $bookDonation=87878788;
             $data =
                 [
                     'data' => [
                         'title' => ' تسليم التبرع للنقطة',
-                        'description' => 'تم حجز تبرعك ب id {$bookDonation->id} ، يرجى مراجعة صفحة تبرعاتي ثم نافذة بانتظار استلامها، يرجى تسليم التبرع تكرما خلال المهلة المحددة ثلاثة أيام، بعد تسليم التبرع تحقق من وصول إشعار لجوالك ، في حال عدم وصوله تواصل معنا عن طريق الواتساب',
+                        'description' => "تم حجز تبرعك ب id {$bookDonation} ، يرجى مراجعة صفحة تبرعاتي ثم نافذة بانتظار استلامها، يرجى تسليم التبرع تكرما خلال المهلة المحددة ثلاثة أيام، بعد تسليم التبرع تحقق من وصول إشعار لجوالك ، في حال عدم وصوله تواصل معنا عن طريق الواتساب",
                         'account_id' => 1,
                     ],
                     'token' => 'ccc71udSRj2LD1861sHtme:APA91bFKYjPPgFvHRy18-v2iN0NgB07Ch2lzzwWosV6dglbYcdQqeRZK2DdfgoDaS8TuVzDtXHbuyBNrY8LdzdvSq_U5II5RYumTVZE-LfQZtJ1hSdnKfC3tNcb5yu5qTqHcgj-h_Wzu'
                 ];
-            $this->create($data);
+           sendNotification::dispatch($data);
+            //$this->create($data);
             return \response()->json(['status'=>'success']);
 
 

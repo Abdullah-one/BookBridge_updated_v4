@@ -10,6 +10,7 @@ use App\Jobs\canAcceptEvenItIsNotWaitedJob;
 use App\Jobs\CancelReservationInPointJob;
 use App\Jobs\CancelReservationNotInPointJob;
 use App\Jobs\RemoveReservation;
+use App\Jobs\sendNotification;
 use App\Models\BookDonation;
 use App\Models\ExchangePoint;
 use App\Models\User;
@@ -153,7 +154,6 @@ class BookDonationController extends Controller
             $year = $currentDate->year; //var
             $month = $currentDate->month; //var
             $exchangePoint_id=$bookDonation->exchangePoint_id; //database/var
-           $notificationController=new NotificationController();
 
            DB::beginTransaction();
             $this->incrementNo_booking($user, $bookDonation->semester);
@@ -207,16 +207,14 @@ class BookDonationController extends Controller
                         }
                         DB::commit();
                         //TODO: send Notification to Donor
-//                        $notificationController->create(
-//                            [
-//                                'data'=>[
-//                                    'title'=>' تسليم التبرع للنقطة',
-//                                    'description'=>'تم حجز تبرعك ب id {$bookDonation->id} ، يرجى مراجعة صفحة تبرعاتي ثم نافذة المنتظر تسليمها، يرجى تسليم التبرع تكرما خلال المهلة المحددة ثلاثة أيام 72 ساعة من الآن، بعد تسليم التبرع تحقق من وصول إشعار لجوالك ، في حال عدم وصوله تواصل معنا عن طريق الواتساب',
-//                                    'account_id'=>$bookDonation->donor_id
-//                                ],
-//                                'token'=> $this->getFcm_token($bookDonation->donor_id)
-//                            ]
-//                        );
+                        sendNotification::dispatch([
+                            'data'=>[
+                                'title'=>' تسليم التبرع للنقطة',
+                                'description'=>"تم حجز تبرعك ب id {$bookDonation->id} ، يرجى مراجعة صفحة تبرعاتي ثم نافذة المنتظر تسليمها، يرجى تسليم التبرع تكرما خلال المهلة المحددة ثلاثة أيام 72 ساعة من الآن، بعد تسليم التبرع تحقق من وصول إشعار لجوالك ، في حال عدم وصوله تواصل معنا عن طريق الواتساب",
+                                'account_id'=>$bookDonation->donor_id
+                            ],
+                            'token'=> $this->getFcm_token($bookDonation->donor_id)
+                        ]);
                         CancelReservationNotInPointJob::dispatch($bookDonation->id,$user->id)->delay(now()->addDays(3));
 
                     }
@@ -555,21 +553,19 @@ class BookDonationController extends Controller
             $performanceController=app(PerformanceController::class);
             $performanceController->incrementStatus($bookDonation->exchangePoint_id,'no_canceledDonationFromBeneficiary');
             DB::commit();
-            $notificationController=new NotificationController();
             $bookDonationRepository=new BookDonationRepository;
             $reservationOfBeneficiary_id=$bookDonationRepository->getReservationOfBeneficiary($bookDonation->id)->id;
             //TODO: send notification to donor
-
-//                        $notificationController->create(
-//                            [
-//                                'data'=>[
-//                                    'title'=>'تم إلغاء حجزك',
-//                                    'description'=>'تم إلغاء حجزك بسبب انتهاء المهلة لاستلام االحزمة ب id {$reservationOfBeneficiary_id} , يرجى مراجعة صفحة حجوزاتي ثم حجوزات ملغية ',
-//                                    'account_id'=>$user->account->id
-//                                ],
-//                            'token'=> $this->getFcm_token($bookDonation->donor_id)
-//                            ]
-//                        );
+            sendNotification::dispatch(
+                [
+                    'data'=>[
+                        'title'=>'تم إلغاء حجزك',
+                        'description'=>"تم إلغاء حجزك بسبب انتهاء المهلة لاستلام االحزمة ب id {$reservationOfBeneficiary_id} , يرجى مراجعة صفحة حجوزاتي ثم حجوزات ملغية ",
+                        'account_id'=>$user->account->id
+                    ],
+                    'token'=> $this->getFcm_token($bookDonation->donor_id)
+                ]
+            );
         }
         catch (PDOException $exception){
             DB::rollBack();
@@ -604,31 +600,29 @@ class BookDonationController extends Controller
             $performanceController=app(PerformanceController::class);
             $performanceController->incrementStatus($bookDonation->exchangePoint_id,'no_canceledDonationFromDonor');
             DB::commit();
-            $notificationController=new NotificationController();
             $bookDonationRepository=new BookDonationRepository;
             $reservationOfBeneficiary_id=$bookDonationRepository->getReservationOfBeneficiary($bookDonation->id)->id;
             //TODO: send notification to donor and beneficiary
-
-//                        $notificationController->create(
-//                            [
-//                                'data'=>[
-//                                    'title'=>'تم إلغاء حجزك',
-//                                    'description'=>'تم إلغاء حجزك بسبب عدم استلام الحزمة من المتبرع في المهلة المحددة ب id {$reservationOfBeneficiary_id} , يرجى مراجعة صفحة حجوزاتي ثم حجوزات ملغية ',
-//                                    'account_id'=>$user->account->id
-//                                ],
-//                                'token'=> $this->getFcm_token($reservationOfBeneficiary_id)
-//                            ]
-//                        );
-//                                    $notificationController->create(
-//                            [
-//                                'data'=>[
-//                                    'title'=>'تم إلغاء الحجز لتبرعك',
-//                                    'description'=>'تم إلغاء الحجز لتبرعك بسبب عدم استلام الحزمة في المهلة المحددة ب id {$bookDonation->id} ,  يرجى مراجعة صفحة تبرعاتي ثم تبرعات منتظر حجزها ',
-//                                    'account_id'=>$bookDonation->donor_id
-//                                ],
-//                            'token'=> $this->getFcm_token($bookDonation->donor_id)
-//                            ]
-//                        );
+            sendNotification::dispatch(
+                [
+                    'data'=>[
+                        'title'=>'تم إلغاء حجزك',
+                        'description'=>'تم إلغاء حجزك بسبب عدم استلام الحزمة من المتبرع في المهلة المحددة ب id {$reservationOfBeneficiary_id} , يرجى مراجعة صفحة حجوزاتي ثم حجوزات ملغية ',
+                        'account_id'=>$user->account->id
+                    ],
+                    'token'=> $this->getFcm_token($reservationOfBeneficiary_id)
+                ]
+            );
+            sendNotification::dispatch(
+                [
+                    'data'=>[
+                        'title'=>'تم إلغاء الحجز لتبرعك',
+                        'description'=>"تم إلغاء الحجز لتبرعك بسبب عدم استلام الحزمة في المهلة المحددة ب id {$bookDonation->id} ,  يرجى مراجعة صفحة تبرعاتي ثم تبرعات منتظر حجزها ",
+                        'account_id'=>$bookDonation->donor_id
+                    ],
+                    'token'=> $this->getFcm_token($bookDonation->donor_id)
+                ]
+            );
         }
         catch (PDOException $exception){
             DB::rollBack();
@@ -719,18 +713,17 @@ class BookDonationController extends Controller
             $performanceController->incrementStatus($bookDonation->exchangePoint_id, 'no_canceledDonationFromBeneficiary');
             DB::commit();
             //TODO: send notification to donor and beneficiary
-//            $notificationController=new NotificationController();
-//            $notificationController->create(
-//                [
-//                    'data'=>[
-//                        'title'=>'تم إلغاء الحجز لتبرعك',
-//                        'description'=>'تم إلغاء الحجز لتبرعك بسبب إلغاء الحجز من المستفيد ب id {$bookDonation->id} ,  يرجى مراجعة صفحة تبرعاتي ثم تبرعات منتظر حجزها ',
-//
-//                        'account_id'=>$bookDonation->donor_id
-//                    ],
-//                'token'=> $this->getFcm_token($bookDonation->donor_id)
-//                ]
-//            );
+            sendNotification::dispatch(
+                [
+                    'data'=>[
+                        'title'=>'تم إلغاء الحجز لتبرعك',
+                        'description'=>"تم إلغاء الحجز لتبرعك بسبب إلغاء الحجز من المستفيد ب id {$bookDonation->id} ,  يرجى مراجعة صفحة تبرعاتي ثم تبرعات منتظر حجزها ",
+
+                        'account_id'=>$bookDonation->donor_id
+                    ],
+                    'token'=> $this->getFcm_token($bookDonation->donor_id)
+                ]
+            );
             return response()->json(['status'=>'success']);
         }
         catch (PDOException $exception){
@@ -778,18 +771,17 @@ class BookDonationController extends Controller
             $performanceController->incrementStatus($bookDonation->exchangePoint_id, 'no_canceledDonationFromDonor');
             DB::commit();
             //TODO: send notification to beneficiary
-            $notificationController=new NotificationController();
-//            $notificationController->create(
-//                [
-//                    'data'=>[
-//                        'title'=>'تم إلغاء حجزك ',
-//                        'message'=>'تم إلغاء حجزك بسبب إلغاء الحجز من المتبرع ب id {$reservation->id} ,  يرجى مراجعة صفحة حجوزاتي ثم حجوزات ملغية ',
-//
-//                        'account_id'=>$beneficiary_id
-//                    ],
-//                'token'=> $this->getFcm_token($beneficiary_id)
-//                ]
-//            );
+            sendNotification::dispatch(
+                [
+                    'data'=>[
+                        'title'=>'تم إلغاء حجزك ',
+                        'message'=>"تم إلغاء حجزك بسبب إلغاء الحجز من المتبرع ب id {$reservation->id} ,  يرجى مراجعة صفحة حجوزاتي ثم حجوزات ملغية ",
+
+                        'account_id'=>$beneficiary_id
+                    ],
+                'token'=> $this->getFcm_token($beneficiary_id)
+                ]
+            );
             return response()->json(['status'=>'success']);
         }
         catch (PDOException $exception){

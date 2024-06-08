@@ -8,6 +8,7 @@ use App\Http\Requests\LoginRequest;
 use App\Http\Requests\ResetPassword;
 use App\Http\Requests\UpdateEmailRequest;
 use App\Http\Requests\UpdatePasswordRequest;
+use App\Jobs\sendNotification;
 use App\Models\Account;
 use App\Models\emailVerificationToken;
 use App\Models\PasswordResetToken;
@@ -198,17 +199,17 @@ class AccountController extends Controller
                     $this->UserRepository->updateNo_booking($account->user, $no_bookingOfFirstSemester,
                         $no_bookingOfSecondSemester);
                     //TODO: send notification to user
+                    sendNotification::dispatch(
+                        [
+                            'data'=>[
+                                'title'=>'رقم الجوال مستخدم لأكثر من حساب مسبقا',
+                                'description'=>'بسبب أن رقم الجوال استخدم لأكثر من حساب خلال السنة ولدواعي الأمان تم نقل سجلات عدد مرات الاستفادة المسموحة لهذا الحساب، في حال أن الحساب استنفد عدد مرات الاستفادة يرجى تغيير رقم الجوال للاستفادة من خدمة حجز حزم الكتب',
+                                'account_id'=>$account->id
+                            ],
+                            'token'=> $this->getFcm_token($account->id)
+                        ]
+                    );
 
-//                    $notificationController->create(
-//                            [
-//                                'data'=>[
-//                                    'title'=>'رقم الجوال مستخدم لأكثر من حساب مسبقا',
-//                                    'description'=>'بسبب أن رقم الجوالاستخدم لأكثر من حساب خلال السنة ولدواعي الأمان تم نقل سجلات عدد مرات الاستفادة المسموحة لهذا الحساب، في حال أن الحساب استنفد عدد مرات الاستفادة يرجى تغيير رقم الجوال للاستفادة من خدمة حجز حزم الكتب',
-//                                    'account_id'=>$account->id
-//                                ],
-//                                'token'=> $this->getFcm_token($account->id)
-//                            ]
-//                        );
                 }
                 $alreadyAccountWithSamePhone->update([
                     'exist'=>false,

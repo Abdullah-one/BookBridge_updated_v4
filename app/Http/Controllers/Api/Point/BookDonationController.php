@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Jobs\AddToRemovalList;
 use App\Jobs\RemoveDonation;
 use App\Jobs\RemoveTransaction;
+use App\Jobs\sendNotification;
 use App\Models\BookDonation;
 use App\Models\ExchangePoint;
 use App\Models\User;
@@ -93,29 +94,29 @@ class BookDonationController extends Controller
             DB::commit();
             RemoveTransaction::dispatch($transaction->id)->delay(now()->addDays(90));
             //TODO: send notification to donor and beneficiary
-//            $notificationController=new NotificationController();
-//            $notificationController->create(
-//                [
-//                    'data'=>[
-//                        'title'=>'تم إلغاء حجزك',
-//                        'message'=>'تم إلغاء حجزك بسبب إلغاء الحجز من المنصة ب id {$reservation_id} ,  يرجى مراجعة صفحة حجوزاتي ثم حجوزات ملغية ',
-//
-//                        'account_id'=>$beneficiary_id
-//                    ],
-//                'token'=> $this->getFcm_token($beneficiary_id)
-//                ]
-//           );
-//            $notificationController->create(
-//                [
-//                    'data'=>[
-//                        'title'=>'شكرا لتبرعك',
-//                        'message'=>'شكرا لتبرعك ونعتذر عن عدم قبول تبرعك ب id {$bookDonation->id} ,  يرجى مراجعة صفحة تبرعاتي ثم تبرعات مرفوضة ',
-//
-//                        'account_id'=>$bookDonation->donor_id
-//                    ],
-//                'token'=> $this->getFcm_token($bookDonation->donor_id)
-//                ]
-//            );
+            sendNotification::dispatch(
+                [
+                    'data'=>[
+                        'title'=>'تم إلغاء حجزك',
+                        'message'=>"تم إلغاء حجزك بسبب إلغاء الحجز من المنصة ب id {$reservation_id} ,  يرجى مراجعة صفحة حجوزاتي ثم حجوزات ملغية ",
+
+                        'account_id'=>$beneficiary_id
+                    ],
+                    'token'=> $this->getFcm_token($beneficiary_id)
+                ]
+            );
+            sendNotification::dispatch(
+                [
+                    'data'=>[
+                        'title'=>'شكرا لتبرعك',
+                        'message'=>"شكرا لتبرعك ونعتذر عن عدم قبول تبرعك ب id {$bookDonation->id} ,  يرجى مراجعة صفحة تبرعاتي ثم تبرعات مرفوضة ",
+
+                        'account_id'=>$bookDonation->donor_id
+                    ],
+                    'token'=> $this->getFcm_token($bookDonation->donor_id)
+                ]
+            );
+
             return response()->json(['status' => 'success']);
         }
         catch (PDOException $exception){
@@ -331,29 +332,29 @@ class BookDonationController extends Controller
             DB::commit();
             RemoveTransaction::dispatch($transaction->id)->delay(now()->addDays(90));
             //TODO: send notification to donor and beneficiary
-//            $notificationController=new NotificationController();
-//            $notificationController->create(
-//                [
-//                    'data'=>[
-//                        'title'=>'تم وصول حجزك',
-//                        'message'=>'تم وصول حجزك ب id {$reservation->id} , يرجى استلام حزمة الكتب في مهلة أقصاها يوم واحد من الآن 24ساعة  يرجى مراجعة صفحة حجوزاتي ثم حجوزات منتظر تسليمها ',
-//
-//                        'account_id'=>$beneficiary_id
-//                    ],
-//                'token'=> $this->getFcm_token($beneficiary_id)
-//                ]
-//           );
-//            $notificationController->create(
-//                [
-//                    'data'=>[
-//                        'title'=>'شكرا لتبرعك',
-//                        'message'=>'شكرا لتبرعك تم استلام تبرعكم ب id {$bookDonation->id} ,  يرجى مراجعة صفحة تبرعاتي ثم تبرعات مسلمة ',
-//
-//                        'account_id'=>$bookDonation->donor_id
-//                    ],
-//                'token'=> $this->getFcm_token($bookDonation->donor_id)
-//                ]
-//            );
+            sendNotification::dispatch(
+                [
+                    'data'=>[
+                        'title'=>'تم وصول حجزك',
+                        'message'=>"تم وصول حجزك ب id {$reservation->id} , يرجى استلام حزمة الكتب في مهلة أقصاها يوم واحد من الآن 24ساعة  يرجى مراجعة صفحة حجوزاتي ثم حجوزات منتظر تسليمها ",
+
+                        'account_id'=>$beneficiary_id
+                    ],
+                    'token'=> $this->getFcm_token($beneficiary_id)
+                ]
+            );
+            sendNotification::dispatch(
+                [
+                    'data'=>[
+                        'title'=>'شكرا لتبرعك',
+                        'message'=>'شكرا لتبرعك تم استلام تبرعكم ب id {$bookDonation->id} ,  يرجى مراجعة صفحة تبرعاتي ثم تبرعات مسلمة ',
+
+                        'account_id'=>$bookDonation->donor_id
+                    ],
+                'token'=> $this->getFcm_token($bookDonation->donor_id)
+                ]
+            );
+
             return response()->json(['status'=>'success']);
 
         }
