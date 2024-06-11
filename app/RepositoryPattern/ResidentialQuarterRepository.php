@@ -70,7 +70,7 @@ class ResidentialQuarterRepository
                 'name',
                 'created_at'
             ])
-            ->paginate(8);
+            ->get();
 
         return $result;
 
@@ -119,7 +119,7 @@ class ResidentialQuarterRepository
         return $result;
     }
 
-    public function getAll(): \Illuminate\Contracts\Pagination\LengthAwarePaginator
+    public function getAll(): \Illuminate\Support\Collection
     {
         return DB::table('residential_quarters')
             ->select([
@@ -127,7 +127,8 @@ class ResidentialQuarterRepository
                 'name',
                 'created_at'
             ])
-            ->paginate(8);
+            ->orderByDesc('created_at')
+            ->get();
     }
 
 

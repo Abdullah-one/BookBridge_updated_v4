@@ -114,9 +114,9 @@ class ResidentialQuarterController extends Controller
     public function destroy($id): JsonResponse
     {
         try{
-//            if(Gate::denies('isAdmin')){
-//                return response()->json(['status'=>'fail','message'=>'غير مصرح لهذا الأمر']);
-//            }
+            if(Gate::denies('isAdmin')){
+                return response()->json(['status'=>'fail','message'=>'غير مصرح لهذا الأمر']);
+            }
             if(!ResidentialQuarter::find($id)){
                 return response()->json(['status'=>'fail','message'=>'النقطة غير موجودة']);
             }

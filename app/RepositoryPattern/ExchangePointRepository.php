@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Hash;
 class ExchangePointRepository
 {
 
-    public function getByResidentialQuarter($residentialQuarter_id): \Illuminate\Contracts\Pagination\LengthAwarePaginator
+    public function getByResidentialQuarter($residentialQuarter_id): Collection
     {
         return DB::table('exchange_points')
             ->join('accounts','account_id','=','accounts.id')
@@ -31,10 +31,10 @@ class ExchangePointRepository
                 ])
             ->where('residentialQuarter_id',$residentialQuarter_id)
             ->orderByDesc('accounts.created_at')
-            ->paginate(8);
+            ->get(8);
     }
 
-    public function getByName($exchangePoint): \Illuminate\Contracts\Pagination\LengthAwarePaginator
+    public function getByName($exchangePoint): Collection
     {
         return DB::table('exchange_points')
             ->join('accounts','account_id','=','accounts.id')
@@ -53,7 +53,7 @@ class ExchangePointRepository
                 ])
             ->where('userName','like',  $exchangePoint . '%')
             ->orderByDesc('accounts.created_at')
-            ->paginate(8);
+            ->get();
     }
 
     public function customGet($residentialQuarter_id,$district,$city_id)
@@ -156,7 +156,7 @@ class ExchangePointRepository
     {
     }
 
-    public function getAll()
+    public function getAll(): Collection
     {
         return DB::table('exchange_points')
             ->join('accounts','account_id','=','accounts.id')
@@ -174,7 +174,7 @@ class ExchangePointRepository
                     'accounts.created_at'
                 ])
             ->orderByDesc('accounts.created_at')
-            ->paginate(8);
+            ->get();
     }
 
 }
