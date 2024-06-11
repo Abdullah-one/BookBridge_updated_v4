@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RegisterUserRequest;
+use App\Models\ExchangePoint;
+use App\Models\ResidentialQuarter;
 use App\Models\User;
 use App\RepositoryPattern\AccountRepository;
 use App\RepositoryPattern\UserRepository;
@@ -57,21 +59,26 @@ class AccountController extends Controller
         }
     }
 
-//    public function getNumberOfUsersAndPointsAndStreet(): JsonResponse
-//    {
-//        try {
-//            if (Gate::denies('isAdmin')) {
-//                return response()->json(['status' => 'fail', 'message' => 'غير مصرح لهذا الفعل']);
-//            }
-//            $no_users=
-//
-//            return response()->json(['status'=>'success']);
-//        }
-//        catch (\Exception $exception){
-//            return response()->json(['status' => 'fail', 'message' => 'هناك خطأ بالخادم']);
-//        }
-//
-//    }
+    public function getNumberOfUsersAndPointsAndStreet(): JsonResponse
+    {
+        try {
+            if (Gate::denies('isAdmin')) {
+                return response()->json(['status' => 'fail', 'message' => 'غير مصرح لهذا الفعل']);
+            }
+            $no_users=User::count();
+            $no_residentialQuarters=ResidentialQuarter::count();
+            $no_exchangePoints=ExchangePoint::count();
+
+            return response()->json(['status'=>'success','data'=>['no_users'=>$no_users,
+                'no_residentialQuarters'=>$no_residentialQuarters,
+                'no_exchangePoints'=>$no_exchangePoints
+                ]]);
+        }
+        catch (\Exception $exception){
+            return response()->json(['status' => 'fail', 'message' => 'هناك خطأ بالخادم']);
+        }
+
+    }
 
 
 

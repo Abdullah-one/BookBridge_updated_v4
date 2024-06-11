@@ -175,6 +175,7 @@ Route::controller(\App\Http\Controllers\Api\Admin\SuperAdmin\CityController::cla
 Route::controller(\App\Http\Controllers\Api\Admin\AccountController::class)->prefix('admin/accounts')->group(function () {
     Route::post('/login','login')->name('admin.accounts.login');
     Route::post('/checkValidityOfToken','checkValidityOfToken')->name('admin.accounts.checkValidityOfToken');
+    Route::middleware('auth:sanctum')->get('/getNumberOfUsersAndPointsAndStreet','getNumberOfUsersAndPointsAndStreet')->name('admin.getNumberOfUsersAndPointsAndStreet');
 
 });
 
