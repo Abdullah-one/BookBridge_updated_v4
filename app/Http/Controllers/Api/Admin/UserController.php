@@ -129,6 +129,35 @@ class UserController extends Controller
         }
     }
 
+    public function get($id): \Illuminate\Http\JsonResponse
+    {
+        try {
+            if(Gate::denies('isAdmin')){
+                return \response()->json(['status'=>'fail','message'=>'غير مصرح لهذا الأمر']);
+            }
+            $user=User::find($id);
+            if(! $user){
+                return \response()->json(['status'=>'fail','message'=>'هذا المستخدم غير موجود']);
+            }
+            $idOfUserAccount=$user->account_id;
+            $account=DB::table('accounts')->where('accounts.id',$idOfUserAccount)
+                ->join('users','accounts.id','=','users.account_id')
+                ->select([
+                    'users.id',
+                    'email',
+                    'userName',
+                    'phoneNumber',
+                    'accounts.created_at'
+                ])
+                ->first();
+            return response()->json(['status'=>'success','data'=>$account]);
+        }
+        catch (Throwable $throwable){
+            return  response()->json(['status'=>'fail','message'=>'هناك خطأ بالخادم']);
+        }
+
+    }
+
     /**
      * Remove the specified resource from storage.
      */

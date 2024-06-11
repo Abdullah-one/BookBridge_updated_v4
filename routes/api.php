@@ -195,6 +195,7 @@ Route::controller(\App\Http\Controllers\Api\Admin\ResidentialQuarterController::
     Route::middleware('auth:sanctum')->post('/store','store')->name('residentialQuarters.store');
     Route::middleware('auth:sanctum')->put('/update/{id}','update')->name('residentialQuarters.update');
     Route::middleware('auth:sanctum')->delete('/destroy/{id}','destroy')->name('residentialQuarters.delete');
+    Route::middleware('auth:sanctum')->get('/get/{id}','get')->name('residentialQuarters.get');
 
 });
 
@@ -203,6 +204,7 @@ Route::controller(\App\Http\Controllers\Api\Admin\UserController::class)->prefix
     Route::middleware('auth:sanctum')->get('/index','index')->name('users.index');
     Route::middleware('auth:sanctum')->post('/store','store')->name('users.store');
     Route::middleware('auth:sanctum')->put('/update/{id}','update')->name('users.update');
+    Route::middleware('auth:sanctum')->get('/get/{id}','get')->name('users.get');
     Route::middleware('auth:sanctum')->put('/block/{id}','block')->name('users.block');
     Route::middleware('auth:sanctum')->put('/unblock/{id}','unblock')->name('users.unblock');
 });

@@ -150,6 +150,7 @@ class ExchangePointRepository
             ])
             ->first();
 
+
     }
 
     public function softDelete($id)

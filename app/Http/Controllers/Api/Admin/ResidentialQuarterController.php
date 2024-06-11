@@ -20,6 +20,24 @@ class ResidentialQuarterController extends Controller
         $this->residentialQuarterRepository = $residentialQuarterRepository;
     }
 
+    public function get($id): JsonResponse
+    {
+        try {
+            if(Gate::denies('isAdmin')){
+                return response()->json(['status'=>'fail','message'=>'غير مصرح لهذا الأمر']);
+            }
+            $residentialQuarter=DB::table('residential_quarters')->where('id',$id)
+                ->select(['id','name','created_at'])->first();
+            if(!$residentialQuarter){
+                return response()->json(['status'=>'fail','message'=>'الحي غير موجودة']);
+            }
+            return \response()->json(['status'=>'success','data'=>$residentialQuarter]);
+        }
+        catch (\Throwable $throwable){
+            return response()->json(['status'=>'fail','message'=>'هناك خطأ بالخادم']);
+        }
+    }
+
     public function getByCity(Request $request): JsonResponse
     {
         $city_id=$request->city_id;
