@@ -97,7 +97,7 @@ class ExchangePointController extends Controller
             $residentialQuarter_id = $request->residentialQuarter_id;
             $password =$request->password;
             DB::beginTransaction();
-            $account=$this->accountRepository->store($userName,$email, $phoneNumber, 'point',  $password);
+            $account=$this->accountRepository->store($userName,$email, 'point',  $password,$phoneNumber);
             $this->exchangePointRepository->store($account->id,$residentialQuarter_id,$maxPackages,$location);
             DB::commit();
             return response()->json(['status'=>'success']);

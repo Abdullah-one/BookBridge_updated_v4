@@ -197,6 +197,17 @@ Route::controller(\App\Http\Controllers\Api\Admin\ResidentialQuarterController::
 
 });
 
+Route::controller(\App\Http\Controllers\Api\Admin\UserController::class)->prefix('admin/users')->group(function () {
+    Route::middleware('auth:sanctum')->get('/customGet','customGet')->name('users.customGet');
+    Route::middleware('auth:sanctum')->get('/index','index')->name('users.index');
+    Route::middleware('auth:sanctum')->post('/store','store')->name('users.store');
+    Route::middleware('auth:sanctum')->put('/update/{id}','update')->name('users.update');
+    Route::middleware('auth:sanctum')->put('/block/{id}','block')->name('users.block');
+    Route::middleware('auth:sanctum')->put('/unblock/{id}','unblock')->name('users.unblock');
+});
+
+
+
 
 
 //                                           ---   Other   ---
@@ -224,11 +235,11 @@ Route::controller(\App\Http\Controllers\Api\Point\BookDonationController::class)
     Route::middleware('auth:sanctum')->put('RejectByExchangePoint/{bookDonation_id}','RejectByExchangePoint')->name('RejectByExchangePoint');
     Route::middleware('auth:sanctum')->get('getUnWaitedDonationsByPhoneNumber','getUnWaitedDonationsByPhoneNumber')->name('getUnWaitedDonationsByPhoneNumber');
     Route::middleware('auth:sanctum')->get('getWaitedDonationsByPhoneNumber','getWaitedDonationsByPhoneNumber')->name('getWaitedDonationsByPhoneNumber');
-    Route::put('confirmReceptionOfWaitedDonations/{bookDonation_id}','confirmReceptionOfWaitedDonations')->name('confirmReceptionOfWaitedDonations');
-    Route::put('confirmReceptionOfUnWaitedDonations/{bookDonation_id}','confirmReceptionOfUnWaitedDonations')->name('confirmReceptionOfUnWaitedDonations');
-    Route::get('getWaitedReservationsByPhoneNumber','getWaitedReservationsByPhoneNumber')->name('getWaitedReservationsByPhoneNumber');
-    Route::put('RejectFromBeneficiary/{bookDonation_id}','RejectFromBeneficiary')->name('RejectFromBeneficiary');
-    Route::put('confirmDelivery/{bookDonation_id}','confirmDelivery')->name('confirmDelivery');
+    Route::middleware('auth:sanctum')->put('confirmReceptionOfWaitedDonations/{bookDonation_id}','confirmReceptionOfWaitedDonations')->name('confirmReceptionOfWaitedDonations');
+    Route::middleware('auth:sanctum')->put('confirmReceptionOfUnWaitedDonations/{bookDonation_id}','confirmReceptionOfUnWaitedDonations')->name('confirmReceptionOfUnWaitedDonations');
+    Route::middleware('auth:sanctum')->get('getWaitedReservationsByPhoneNumber','getWaitedReservationsByPhoneNumber')->name('getWaitedReservationsByPhoneNumber');
+    Route::middleware('auth:sanctum')->put('RejectFromBeneficiary/{bookDonation_id}','RejectFromBeneficiary')->name('RejectFromBeneficiary');
+    Route::middleware('auth:sanctum')->put('confirmDelivery/{bookDonation_id}','confirmDelivery')->name('confirmDelivery');
 
 });
 //

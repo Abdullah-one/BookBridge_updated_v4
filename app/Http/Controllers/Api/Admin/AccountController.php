@@ -3,7 +3,10 @@
 namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\RegisterUserRequest;
+use App\Models\User;
 use App\RepositoryPattern\AccountRepository;
+use App\RepositoryPattern\UserRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -11,13 +14,16 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use PHPUnit\Exception;
+use Throwable;
 
 class AccountController extends Controller
 {
     protected AccountRepository $accountRepository;
-    function __construct(AccountRepository $accountRepository)
+    protected UserRepository $userRepository;
+    function __construct(AccountRepository $AccountRepository,UserRepository $UserRepository)
     {
-        $this->accountRepository=$accountRepository;
+        $this->accountRepository=$AccountRepository;
+        $this->userRepository=$UserRepository;
     }
     public function login(Request $request): JsonResponse
     {
@@ -50,5 +56,23 @@ class AccountController extends Controller
             return response()->json(['status' => 'fail', 'message' => 'هناك خطأ بالخادم']);
         }
     }
+
+//    public function getNumberOfUsersAndPointsAndStreet(): JsonResponse
+//    {
+//        try {
+//            if (Gate::denies('isAdmin')) {
+//                return response()->json(['status' => 'fail', 'message' => 'غير مصرح لهذا الفعل']);
+//            }
+//            $no_users=
+//
+//            return response()->json(['status'=>'success']);
+//        }
+//        catch (\Exception $exception){
+//            return response()->json(['status' => 'fail', 'message' => 'هناك خطأ بالخادم']);
+//        }
+//
+//    }
+
+
 
 }

@@ -35,7 +35,7 @@ class AuthServiceProvider extends ServiceProvider
         //                             -- User --
         //                              Account
         Gate::define('isUser', function (Account $account) {
-            return  $account->role == 'user';
+            return  $account->role == 'user' && $account->isBlocked==false;
         });
         //                            -- Point --
         //                            * Account *

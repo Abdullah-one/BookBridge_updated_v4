@@ -40,7 +40,7 @@ class AccountController extends Controller
         }
         try {
             DB::beginTransaction();
-            $account = $this->accountRepository->store($username,$email, 'user', $password, false);
+            $account = $this->accountRepository->store($username,$email, 'user', $password);
             $this->userRepository->store($account->id);
             $token=$account->createToken($deviceName)->plainTextToken;
             DB::commit();

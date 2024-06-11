@@ -100,8 +100,11 @@ class AccountController extends Controller
 
         })->first();
         $device_name=$request->device_name;
-        if (!$user ||!Hash::check($request->password, $user->password)) {
+        if (!$user ||!Hash::check($request->password, $user->password) ) {
             return response()->json(['status'=>'validationFail' , 'error'=>'كلمة المرور أو البريد الإلكتروني غير صحيحة']);
+        }
+        if($user->isBlocked) {
+            return response()->json(['status'=>'validationFail' , 'error'=>'عذرا، لقد تم حجبك']);
         }
         $token=$user->createToken($device_name)->plainTextToken;
         return response()->json(['status'=>'success','token'=>$token , 'user'=>[

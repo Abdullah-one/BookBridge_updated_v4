@@ -17,12 +17,11 @@ class AccountRepository
     {
         return Account::where([
             'phoneNumber'=> $phoneNumber,
-            'phoneVerified' => true
         ])
             ->first();
     }
 
-    public function store(string $userName,string $email,string $phoneNumber, string $role, string $password, bool $exist=false)
+    public function store(string $userName,string $email, string $role, string $password,string $phoneNumber=null, bool $exist=false,)
     {
         return Account::create([
             'userName' => $userName,

@@ -29,7 +29,8 @@ class Account extends Authenticatable
         'password',
         'email',
         'role',
-        'exist'
+        'exist',
+        'isBlocked'
     ];
 
     /**

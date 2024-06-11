@@ -25,7 +25,11 @@ class ExchangePointRequest extends FormRequest
     public function rules(): array
     {
         $id=$this->route('id');
-        $account_id=ExchangePoint::find($id)->account_id;
+        $exchangePoint=ExchangePoint::find($id);
+        $account_id=null;
+        if($exchangePoint){
+            $account_id=$exchangePoint->account_id;
+        }
         return [
             'email' => 'unique:accounts,email,' . $account_id,
         ];

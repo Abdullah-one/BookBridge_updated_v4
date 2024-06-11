@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests;
 
+use App\Models\ExchangePoint;
+use App\Models\User;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
@@ -23,8 +25,14 @@ class RegisterUserRequest extends FormRequest
      */
     public function rules(): array
     {
+        $id=$this->route('id');
+        $user=User::find($id);
+        $account_id=null;
+        if($user){
+            $account_id=$user->account_id;
+        }
         return [
-            'email' => 'unique:accounts,email',
+            'email' => 'unique:accounts,email,' . $account_id,
         ];
     }
 
@@ -38,6 +46,8 @@ class RegisterUserRequest extends FormRequest
     }
     protected function failedValidation(Validator $validator)
     {
-        throw new HttpResponseException(response()->json(['status'=>'validationFail','errors'=>$validator->errors()]));
-    }
+        throw new HttpResponseException(response()->json([
+            'status' => 'fail',
+            'message' => 'يوجد حساب بهذا البريد الإلكتروني',
+        ]));    }
 }
