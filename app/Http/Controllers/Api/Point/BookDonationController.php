@@ -480,7 +480,7 @@ class BookDonationController extends Controller
                 return response()->json(['status' => 'fail', 'message' => 'غير مصرح لهذا الفعل']);
             }
             if (Gate::denies('confirmDelivery',[$bookDonation,$code])) {
-                return response()->json(['status' => 'fail', 'message' => 'غير مصرح لهذا الفعل']);
+                return response()->json(['status' => 'fail', 'message' => 'الكود المدخل غير صحيح']);
             }
             DB::beginTransaction();
             $beneficiary_id=$this->bookDonationRepository->getReservationOfBeneficiary($bookDonation_id)->user_id; //var

@@ -143,7 +143,7 @@ class AuthServiceProvider extends ServiceProvider
         Gate::define('confirmDelivery',function (Account $account,BookDonation $bookDonation,$code){
             return $account->exchangePoint->id == $bookDonation->exchangePoint->id &&
                 $bookDonation->reservations()->where('status','=', 'بانتظار مجيئك واستلامها')
-                    ->where('code','=', $code);
+                    ->where('code','=', $code)->first();
         });
 
 
