@@ -339,8 +339,8 @@ class BookDonationRepository {
             ->join('book_donations',function ($join) use ($exchangePoint_id) {
                 $join->on('users.id','=','book_donations.donor_id')
                     ->where('book_donations.exchangePoint_id',$exchangePoint_id)
-                    ->where('book_donations.status','محجوز في انتظار الاستلام')
-                    ->orWhere('canAcceptEvenItIsNotWaited',true);
+                    ->where('book_donations.status','محجوز في انتظار الاستلام');
+                    //->orWhere('canAcceptEvenItIsNotWaited',true);
             })
             ->select([
                 'accounts.userName as donor',
